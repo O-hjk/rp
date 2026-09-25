@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+        <title>Sistemas RPG - Painel Central</title>
+        <style>
+                :root {
+                        --wheat: #f5deb3;
+                        --wheat-glow: rgba(245, 222, 179, 0.4);
+                        --bg-neon-1: #0a051b;
+                        --bg-neon-2: #16002c;
+                        --accent-neon: #8a2be2;
+                        --accent-cyan: #00f3ff;
+                        --panel-bg: rgba(15, 10, 25, 0.75);
+                        --border-glow: rgba(138, 43, 226, 0.3);
+                }
+
+                * {
+                        margin: 0;
+                        padding: 0;
+                        box-sizing: border-box;
+                        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                        color: var(--wheat);
+                }
+
+                body {
+                        min-height: 100vh;
+                        background: linear-gradient(135deg, var(--bg-neon-1), var(--bg-neon-2));
+                        background-attachment: fixed;
+                        display: flex;
+                        flex-direction: column;
+                        overflow-x: hidden;
+                        position: relative;
+                }
+
+                body::before,
+                body::after {
+                        content: '';
+                        position: absolute;
+                        width: 300px;
+                        height: 300px;
+                        border-radius: 50%;
+                        filter: blur(120px);
+                        z-index: -1;
+                        pointer-events: none;
+                }
+
+                body::before {
+                        top: 10%;
+                        left: 5%;
+                        background: var(--accent-neon);
+                        opacity: 0.4;
+                }
+
+                body::after {
+                        bottom: 10%;
+                        right: 5%;
+                        background: var(--accent-cyan);
+                        opacity: 0.25;
+                }
+
+                .login-container {
+                        display: flex;
+                        justify-content: center;
+                        align-items: center;
+                        min-height: 100vh;
+                        padding: 20px;
+                }
+
+                .login-card {
+                        background: var(--panel-bg);
+                        border: 1px solid var(--border-glow);
+                        box-shadow: 0 0 25px rgba(138, 43, 226, 0.25);
+                        backdrop-filter: blur(10px);
+                        padding: 40px 30px;
+                        border-radius: 12px;
+                        width: 100%;
+                        max-width: 400px;
+                        text-align: center;
+                        transition: transform 0.3s ease;
+                }
+
+                .login-card h2 {
+                        font-size: 1.8rem;
+                        margin-bottom: 25px;
+                        text-transform: uppercase;
+                        letter-spacing: 2px;
+                        text-shadow: 0 0 8px var(--wheat-glow);
+                }
+
+                .input-group {
+                        margin-bottom: 20px;
+                        text-align: left;
+                }
+
+                .input-group label {
+                        display: block;
+                        margin-bottom: 8px;
+                        font-size: 0.9rem;
+                        letter-spacing: 1px;
+                }
+
+                .input-group input {
+                        width: 100%;
+                        padding: 12px;
+                        background: rgba(0, 0, 0, 0.5);
+                        border: 1px solid rgba(245, 222, 179, 0.2);
+                        border-radius: 6px;
+                        color: #fff;
+                        font-size: 1rem;
+                        outline: none;
+                        transition: border-color 0.3s, box-shadow 0.3s;
+                }
+
+                .input-group input:focus {
+                        border-color: var(--wheat);
+                        box-shadow: 0 0 10px var(--wheat-glow);
+                }
+
+                .btn-submit {
+                        width: 100%;
+                        padding: 12px;
+                        background: linear-gradient(90deg, #8a2be2, #4b0082);
+                        border: 1px solid var(--wheat);
+                        color: var(--wheat);
+                        font-size: 1rem;
+                        font-weight: bold;
+                        letter-spacing: 1px;
+                        border-radius: 6px;
+                        cursor: pointer;
+                        transition: all 0.3s ease;
+                        box-shadow: 0 0 10px rgba(138, 43, 226, 0.4);
+                }
+
+                .btn-submit:hover {
+                        box-shadow: 0 0 20px var(--wheat);
+                        transform: translateY(-2px);
+                }
+
+                .error-msg {
+                        color: #ff4d4d;
+                        font-size: 0.85rem;
+                        margin-top: 15px;
+                        display: none;
+                }
+
+                .app-container {
+                        display: none;
+                        min-height: 100vh;
+                        flex-direction: column;
+                }
+
+                .navbar {
+                        background: rgba(10, 5, 27, 0.9);
+                        border-bottom: 1px solid var(--border-glow);
+                        padding: 15px 25px;
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        position: sticky;
+                        top: 0;
+                        z-index: 100;
+                        backdrop-filter: blur(10px);
+                }
+
+                .navbar .brand {
+                        font-size: 1.4rem;
+                        font-weight: bold;
+                        text-transform: uppercase;
+                        letter-spacing: 2px;
+                        text-shadow: 0 0 5px var(--wheat-glow);
+                }
+
+                .menu-toggle {
+                        display: flex;
+                        flex-direction: column;
+                        gap: 5px;
+                        cursor: pointer;
+                        background: none;
+                        border: none;
+                }
+
+                .menu-toggle span {
+                        width: 25px;
+                        height: 3px;
+                        background-color: var(--wheat);
+                        border-radius: 2px;
+                        transition: 0.3s;
+                }
+
+                .nav-menu {
+                        position: fixed;
+                        top: 60px;
+                        right: -100%;
+                        width: 250px;
+                        height: calc(100vh - 60px);
+                        background: rgba(15, 10, 25, 0.95);
+                        border-left: 1px solid var(--border-glow);
+                        display: flex;
+                        flex-direction: column;
+                        padding: 20px 0;
+                        transition: right 0.3s ease;
+                        backdrop-filter: blur(15px);
+                }
+
+                .nav-menu.active {
+                        right: 0;
+                }
+
+                .nav-menu a {
+                        padding: 15px 25px;
+                        text-decoration: none;
+                        font-size: 0.95rem;
+                        border-left: 3px solid transparent;
+                        transition: all 0.3s;
+                }
+
+                .nav-menu a:hover,
+                .nav-menu a.active {
+                        background: rgba(138, 43, 226, 0.2);
+                        border-left-color: var(--wheat);
+                        text-shadow: 0 0 5px var(--wheat);
+                }
+
+                .btn-logout {
+                        margin-top: auto;
+                        margin-left: 25px;
+                        margin-right: 25px;
+                        padding: 10px;
+                        background: transparent;
+                        border: 1px solid #ff4d4d;
+                        color: #ff4d4d;
+                        border-radius: 6px;
+                        cursor: pointer;
+                        transition: 0.3s;
+                }
+
+                .btn-logout:hover {
+                        background: #ff4d4d;
+                        color: #fff;
+                }
+
+                .content-area {
+                        flex: 1;
+                        max-width: 900px;
+                        width: 100%;
+                        margin: 0 auto;
+                        padding: 30px 20px;
+                }
+
+                .system-content {
+                        display: none;
+                        background: var(--panel-bg);
+                        border: 1px solid var(--border-glow);
+                        border-radius: 12px;
+                        padding: 30px;
+                        box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+                        animation: fadeIn 0.5s ease-in-out;
+                }
+
+                .system-content.active {
+                        display: block;
+                }
+
+                .system-content h1 {
+                        font-size: 2rem;
+                        margin-bottom: 20px;
+                        border-bottom: 2px solid var(--border-glow);
+                        padding-bottom: 10px;
+                        text-shadow: 0 0 8px var(--wheat-glow);
+                }
+
+                .system-content p {
+                        line-height: 1.7;
+                        margin-bottom: 15px;
+                        font-size: 1.05rem;
+                        text-align: justify;
+                        opacity: 0.95;
+                }
+
+                .system-img-container {
+                        margin-top: 30px;
+                        text-align: center;
+                }
+
+                .system-img-container img {
+                        max-width: 100%;
+                        height: auto;
+                        border-radius: 8px;
+                        border: 1px solid var(--border-glow);
+                        box-shadow: 0 0 15px rgba(138, 43, 226, 0.3);
+                        transition: transform 0.3s ease;
+                }
+
+                .system-img-container img:hover {
+                        transform: scale(1.02);
+                }
+
+                @keyframes fadeIn {
+                        from {
+                                opacity: 0;
+                                transform: translateY(10px);
+                        }
+
+                        to {
+                                opacity: 1;
+                                transform: translateY(0);
+                        }
+                }
+        </style>
+</head>
+
+<body>
+
+
+        <div class="login-container" id="loginScreen">
+                <div class="login-card">
+                        <h2>Acesso ao Sistema</h2>
+                        <form id="loginForm">
+                                <div class="input-group">
+                                        <label for="username">Usuário</label>
+                                        <input type="text" id="username" placeholder="Digite seu usuário" required
+                                                autocomplete="off">
+                                </div>
+                                <div class="input-group">
+                                        <label for="password">Chave / Senha</label>
+                                        <input type="password" id="password" placeholder="Digite a chave" required>
+                                </div>
+                                <button type="submit" class="btn-submit">ACESSAR SISTEMA</button>
+                                <div class="error-msg" id="errorMsg">Usuário ou senha inválidos.</div>
+                        </form>
+                </div>
+        </div>
+
+        <div class="app-container" id="appScreen">
+
+                <nav class="navbar">
+                        <div class="brand" id="currentTitle">Sistema</div>
+                        <button class="menu-toggle" id="menuToggle">
+                                <span></span>
+                                <span></span>
+                                <span></span>
+                        </button>
+                        <div class="nav-menu" id="navMenu">
+                                <a href="#" onclick="showSystem('sys1')">Facções</a>
+                                <a href="#" onclick="showSystem('sys2')">Ranking</a>
+                                <a href="#" onclick="showSystem('sys3')">Classe Z</a>
+                                <a href="#" onclick="showSystem('sys4')">Classe S</a>
+                                <a href="#" onclick="showSystem('sys5')">Classe A</a>
+                                <a href="#" onclick="showSystem('sys6')">Classe C</a>
+                                <a href="#" onclick="showSystem('sys7')">Classe F</a>
+                                <a href="#" onclick="showSystem('sys8')">Chaves</a>
+                                <a href="#" onclick="showSystem('sys9')">Reconhecimento</a>
+                                <a href="#" onclick="showSystem('sys10')">Gravidez</a>
+                                <button class="btn-logout" onclick="logout()">Sair</button>
+                        </div>
+                </nav>
+
+                <main class="content-area">
+
+                       
+                        <article class="system-content" id="sys1">
+                                <h1>Sistema de Faccções</h1>
+                                <p>O server é dividido em 4 principais facções, sendo todos os players
+                                        Respectivamente pessoas com certo destaque nelas, já que possui uma autoridade
+                                        Uma autoridade trata-se de uma arma mágica de efeito especial que se liga a uma pessoa
+                                        Foram criadas por humanos durante os eventos que foram chamados por " extinção da magia ", eventos que aconteceram em decorrencia
+                                        Do confronto contra Guinevere, sendo uma das poucas formas de magia ainda existente, se tornaram
+                                </p> <br> <br>
+                                <p>O role-play se passa em Velha Zerâlandia, um dos poucos países restantes, que hoje em dia é governado
+                                por Jerald Delascorridas, um governador que embora tenha seus benéficios com o povo, também é conhecido por
+                                Ser contra a oposição e ter metodos extremos e violentos;
+                                </p> <br> <br>
+                                <P> Sendo assim, se gerou 4 grandes facções que estão constatemente uns contra os outros, sendo estes:
+                                        - O governo de Jerald, sendo parte do exercito de Velha Zerâlandia, os players que escolherem este
+                                        Farão parte da lei de seu pais e uma das ultimas resistências armadas da humanidade, sendo os principais
+                                        Defensores de ataques contra outros países e principais opositores a resistencia;
+                                </P> <br>
+                                <p> - Os revolucionarios são a principal linha de defesa contra o governo de Jeralt, estando
+                                        Em oposição a Jeralt a mais de 15 anos, procuram um país mais livre e com liberdade de opnião
+                                        Liberdade de religião, orientação sexual e fim das desigualdades entre classes
+                                </p> <br>
+                                <p> - Criminosos são criminosos, buscam fortuna ou motivos pessoais para ir contra as leis, gostando do sistema
+                                        Atual e sem reformas a eles, simplesmente pelo poder, dinheiro, fama, ou pelo prazer de ser contra regras convencionais
+                                </p> <br>
+                                <p> - Caçadores de recompensa caçam criminosos e revolucionarios que tem recompensas divulgadas pelo governo</p>
+
+                                <div class="system-img-container">
+                                        <img src="Edelgard.jpeg"
+                                                alt="Imagem do Sistema">
+                                </div>
+                        </article>
+
+                
+                        <article class="system-content" id="sys2">
+                                <h1>Sistema de Ranking</h1>
+                                <p> O sistema de ranking é o sistema de status do server, sendo: Ranking 1, 2, 3, 4, 5, 6 e 7
+                                </p> <br>
+                                <p> Rankings não são sinonimo de vitoria, para que exista uma diferença significativa entre um player
+                                        E outro, deve existir 2 ranks entre eles ( ou seja, para um ter superioridade, o mais fraco deve estar no rank 1 e o outro no rank 4)
+                                        Mas os rankings servem para decidir coisas como, quem é ligeiramente mais rápido, mais experiente
+                                        Qual habilidade é mais forte no papel desconsiderando efeitos, quem tem melhor reação e etc. . .
+                                </p> <br>
+                                <p> Os ranks são upados conforme lutas e quando liberados, em determinadas epócas do server o teto vai ser
+                                        O rank 4 por exemplo, só então após certo evento vai desbloquear o 6. Os rankings são upados por lutas entre players
+                                        Todas as lutas para up devem ser até a morte, caso não aja morte, solicite um admnistrador para averiguar a luta e decidir se ela é
+                                        O suficiente para upar de nível. Lutas de treino não aumentam, mas a próxima luta contará como duas
+                                </p> <br>
+                                <p> Para upar para o próximo ranking, é necessário a mesma quantidade de lutas que o ranking que você quer alcançar
+                                        Ou seja, duas lutas para rank 2, três para rank 3, e por aí vai. . .
+                                </p>
+                                <div class="system-img-container">
+                                        <img src=""
+                                                alt="Imagem do Sistema">
+                                </div>
+                        </article>
+
+                        <!-- SISTEMA 3 -->
+                        <article class="system-content" id="sys3">
+                                <h1>Classe Z</h1>
+                                <p>Autoridade Z</p>
+                                <div class="system-img-container">
+                                        <img src="https://via.placeholder.com/700x350/16002c/f5deb3?text=Imagem+Centralizada+-+Combate"
+                                                alt="Imagem do Sistema">
+                                </div>
+                        </article>
+
+                        <!-- SISTEMA 4 -->
+                        <article class="system-content" id="sys4">
+                                <h1>Classe S</h1>
+                                <p>Autoridade S</p>
+                                <div class="system-img-container">
+                                        <img src="https://via.placeholder.com/700x350/16002c/f5deb3?text=Imagem+Centralizada+-+Economia"
+                                                alt="Imagem do Sistema">
+                                </div>
+                        </article>
+
+                        <!-- SISTEMA 5 -->
+                        <article class="system-content" id="sys5">
+                                <h1>Classe A</h1>
+                                <p>Autoridade A.</p>
+                                <div class="system-img-container">
+                                        <img src="https://via.placeholder.com/700x350/16002c/f5deb3?text=Imagem+Centralizada+-+Ranqueamento"
+                                                alt="Imagem do Sistema">
+                                </div>
+                        </article>
+
+                        <!-- SISTEMA 6 -->
+                        <article class="system-content" id="sys6">
+                                <h1>Classe C</h1>
+                                <p>Autoridade C.</p>
+                                <div class="system-img-container">
+                                        <img src="https://via.placeholder.com/700x350/16002c/f5deb3?text=Imagem+Centralizada+-+Criaturas"
+                                                alt="Imagem do Sistema">
+                                </div>
+                        </article>
+
+                        <!-- SISTEMA 7 -->
+                        <article class="system-content" id="sys7">
+                                <h1>Classe F</h1>
+                                <p>Autoridade F.
+                                </p>
+                                <div class="system-img-container">
+                                        <img src="https://via.placeholder.com/700x350/16002c/f5deb3?text=Imagem+Centralizada+-+Talentos"
+                                                alt="Imagem do Sistema">
+                                </div>
+                        </article>
+
+
+                        <article class="system-content" id="sys8">
+                                <h1>Sistema de Chaves</h1>
+                                <p>Chaves são itens mágicos que surgiram devido a concentração mágicas das autoridades.
+                                        Perceba que
+                                        Não existe uma explicação 100% lógica para o surgimento destas, são artefatos
+                                        mágicos
+                                        Criados a partir de resquicios de magia, e por casualidade, assumiram a
+                                        aparência de chaves do
+                                        Cotidiano
+                                </p> <br>
+                                <p> Existem alguns tipos de chaves, sendo mais específico, existem 5 tipos de chaves,
+                                        sendo estas;
+
+                                </p> <br>
+                                <P> Chaves espaciais: Chaves que tem propriedades de distorcer o espaço e levar o
+                                        portador a um lugar pré determinado
+                                        Podendo ser usada uma vez por semana
+                                </P>
+                                <br>
+                                <pr> Chaves de dupla ponta: As chaves mais raras de se achar, são chaves que permite ao
+                                        portador
+                                        De forma passiva, utilizar até duas autoridades
+                                </pr>
+                                <br> <br>
+                                <pr> Chave de portão: Uma chave que consegue selar coisas desde que isto tenha como
+                                        estar entre
+                                        O estado de aberto e fechado no momento ( Como por exemplo, um báu, uma porta,
+                                        um interior oco que você já tenha feito )
+                                        O selamento não pode ser desfeito há não ser por outras chaves de portão ou pelo
+                                        próprio portador que
+                                        Selou este
+                                </pr>
+                                <br> <br>
+                                <pr> Chave segura dor: Uma vez por luta, você pode utilizar está chave para anular
+                                        completamente a dor que o personagem
+                                        Sentiria ao receber aquele ataque, isso é, apenas a dor, não as causas físicas,
+                                        mas isto permite que o portador fique de pé mesmo que tenha
+                                        Acabado de perder um braço
+                                </pr>
+                                <br> <br>
+                                <pr> Chaves de coração: Permite uma vez por dia, que o portador saiba exatamente oque
+                                        outra pessoa está pensando naquele momento</pr>
+                                <div class="system-img-container">
+                                        <img src="zip zop.jpeg" alt="Imagem do Sistema">
+                                </div>
+                        </article>
+
+                        <article class="system-content" id="sys9">
+                                <h1>Sistema de Reconhecimento </h1>
+                                <p>O Sistema de reconhecimento abrange o quão relevante você é de acordo com sua facção,
+                                        seja ela
+                                        Governo, Revolucionário, Criminoso ou caçador de recompensas</p>
+                                <Br>
+                                <p> Para os Revolucionários, seu reconhceimento está diretamente ligado
+                                        Ao tamanho de sua recompensa, que sempre inicia nas 100 moedas. Criminosos
+                                        também
+                                        recebem premios em dinheiro por sua captura, entretanto, as recompensas são
+                                        significativamente menores
+                                        Por isso se segue um sistema hierarquico não oficial onde temos a seguintes
+                                        patentes: Bandido, Agente, Terrorista,
+                                        Grande mente ou Chefe do crime</p>
+                                <br>
+                                <P> Os caçadores de aluguel recebem reconhecimento conforme capturam criminosos ou
+                                        revolucionarios, quanto
+                                        maior a captura, maior o mérito; já os agentes do governo tem uma estrutura
+                                        oficial e rigida, sendo ela: Soldado, Cabo
+                                        Sub-tenete, Tenente, Capitão, Coronel, General e por fim: Grande dragão
+                                        guerreiro
+                                </P> <br>
+                                <p> MAs afinal, para que serve este sistema. A posição hieraquicá de alguém muda o
+                                        tratamento e forma como os outros
+                                        devem trata-los, também aumenta seu grau de perigo, além de dar acessos a
+                                        contéudos exclusivos devido sua posição. O sistema serve de forma intrigantee
+                                        para definir
+                                        O que seria a classe social do personagem, servindo para definir aspirações e
+                                        sonhos ou criar evoluções
+                                        da personalidade do seu personagem
+                                </p>
+                                <div class="system-img-container">
+                                        <img src="army.jpg" alt="Imagem do Sistema">
+                                </div>
+                        </article>
+
+                        <article class="system-content" id="sys10">
+                                <h1>Gravidez</h1>
+                                <p> A gravidez é o resultado de um relacionamento hétero cujo as duas partes nao tomaram
+                                        precauções e acabou
+                                        gerando um bebê, muito sad né? Devido aos avanços científicos recentes, uma
+                                        criança pode madurar em até 3 dias ( Considerando off rp)
+                                        A criança não poderá ser encenada e só poderá crescer através dos time skips do
+                                        server, caso a criaça chegue a idade parater uma autoridade, poderá herdar
+                                        A autoridade do pai ou da mãe após um destes morrer, a criança poderá ser
+                                        encenada pelo pai morto
+                                </p>
+                                <div class="system-img-container">
+                                        <img src="mom.jpeg" alt="Imagem do Sistema">
+                                </div>
+                        </article>
+
+                </main>
+        </div>
+
+        <script>
+                const credentialsDatabase = {
+                        "senha1": { user: "player", pass: "Fac", sysId: "sys1" },
+                        "senha2": { user: "player", pass: "Rsystem", sysId: "sys2" },
+                        "senha3": { user: "player", pass: "Zclass", sysId: "sys3" },
+                        "senha4": { user: "player", pass: "Sclass", sysId: "sys4" },
+                        "senha5": { user: "player", pass: "Aclass", sysId: "sys5" },
+                        "senha6": { user: "player", pass: "Cclass", sysId: "sys6" },
+                        "senha7": { user: "player", pass: "Fclass", sysId: "sys7" },
+                        "senha8": { user: "player", pass: "Chaves", sysId: "sys8" },
+                        "senha9": { user: "player", pass: "Rec", sysId: "sys9" },
+                        "senha10": { user: "player", pass: "Gravidez", sysId: "sys10" }
+                };
+
+                const loginForm = document.getElementById('loginForm');
+                const loginScreen = document.getElementById('loginScreen');
+                const appScreen = document.getElementById('appScreen');
+                const errorMsg = document.getElementById('errorMsg');
+                const menuToggle = document.getElementById('menuToggle');
+                const navMenu = document.getElementById('navMenu');
+
+                menuToggle.addEventListener('click', () => {
+                        navMenu.classList.toggle('active');
+                });
+
+                loginForm.addEventListener('submit', (e) => {
+                        e.preventDefault();
+                        const userVal = document.getElementById('username').value.trim();
+                        const passVal = document.getElementById('password').value.trim();
+
+                        let targetSysId = null;
+
+                        for (let key in credentialsDatabase) {
+                                if (credentialsDatabase[key].user === userVal && credentialsDatabase[key].pass === passVal) {
+                                        targetSysId = credentialsDatabase[key].sysId;
+                                        break;
+                                }
+                        }
+
+                        if (targetSysId) {
+                                errorMsg.style.display = 'none';
+                                loginScreen.style.display = 'none';
+                                appScreen.style.display = 'flex';
+                                showSystem(targetSysId);
+                        } else {
+                                errorMsg.style.display = 'block';
+                        }
+                });
+                function showSystem(systemId) {
+                        const allSystems = document.querySelectorAll('.system-content');
+                        allSystems.forEach(sys => sys.classList.remove('active'));
+
+                        const target = document.getElementById(systemId);
+                        if (target) {
+                                target.classList.add('active');
+                                document.getElementById('currentTitle').innerText = target.querySelector('h1').innerText;
+                        }
+
+                        navMenu.classList.remove('active');
+                        window.scrollTo({ top: 0, behavior: 'smooth' });
+                }
+
+                function logout() {
+                        appScreen.style.display = 'none';
+                        loginScreen.style.display = 'flex';
+                        document.getElementById('password').value = '';
+                }
+
+                window.addEventListener("click", () => {
+                        const music = document.getElementById("bgmusic");
+                        music.muted = false;
+                        music.play();
+                });
+        </script>
+
+        <audio id="bgmusic" autoplay loop muted>
+                <source src="mask.mp3" type="audio/mp3">
+        </audio>
+</body>
+
+</html>
